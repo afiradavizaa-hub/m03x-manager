@@ -1,0 +1,182 @@
+<UserControl x:Class="M03XManager.Views.DevicesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:M03XManager.Controls">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" CornerRadius="{DynamicResource R.Small}" Padding="12,8" Margin="0,0,0,12"
+                Visibility="{Binding HasMessage, Converter={StaticResource BoolToVisibility}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Background" Value="{DynamicResource B.AccentSoft}" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsError}" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource B.DangerSoft}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <TextBlock Text="{Binding Message}" TextWrapping="Wrap" FontSize="12" />
+        </Border>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock Text="在线终端" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource FieldValue}">
+                        <Run Text="设备列表记录数：" /><Run Text="{Binding KnownDeviceCount, Mode=OneWay}" />
+                        <Run Text=" · 当前在线终端：" /><Run Text="{Binding OnlineCount, Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock Text="{Binding TotalBanner}" Style="{StaticResource Note}" Margin="0,6,0,0" />
+                    <TextBlock Text="{Binding DataSourceNote}" Style="{StaticResource Note}" Margin="0,6,0,0" />
+                    <TextBlock Text="{Binding CounterWarning}" Style="{StaticResource Note}" Margin="0,6,0,0"
+                               Foreground="{DynamicResource B.Warn}"
+                               Visibility="{Binding HasCounterWarning, Converter={StaticResource BoolToVisibility}}" />
+                    <TextBlock Text="{Binding RoutingNote}" Style="{StaticResource Note}" Margin="0,6,0,0"
+                               Foreground="{DynamicResource B.Warn}" />
+                </StackPanel>
+                <Button Grid.Column="1" Content="重置设备统计" Style="{StaticResource GhostButton}"
+                        VerticalAlignment="Top" Command="{Binding ResetStatsCommand}" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ===== 终端列表 ===== -->
+            <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding Clients}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource Card}" Padding="14,12">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" Cursor="Hand">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="14" />
+                                            <Border Background="{DynamicResource B.AccentSoft}" CornerRadius="4" Padding="6,1" Margin="8,0,0,0"
+                                                    Visibility="{Binding CustomNamed, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="自定义名称" FontSize="11" />
+                                            </Border>
+                                            <Border Background="{DynamicResource B.DangerSoft}" CornerRadius="4" Padding="6,1" Margin="8,0,0,0"
+                                                    Visibility="{Binding IsBlocked, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="已禁止上网" FontSize="11" Foreground="{DynamicResource B.Danger}" />
+                                            </Border>
+                                            <Border Background="{DynamicResource B.DangerSoft}" CornerRadius="4" Padding="6,1" Margin="8,0,0,0"
+                                                    ToolTip="{Binding CounterWarning}"
+                                                    Visibility="{Binding CounterSuspect, Converter={StaticResource BoolToVisibility}}">
+                                                <TextBlock Text="计数器异常" FontSize="11" Foreground="{DynamicResource B.Warn}" />
+                                            </Border>
+                                        </StackPanel>
+                                        <TextBlock Style="{StaticResource Note}" Margin="0,6,0,0">
+                                            <Run Text="主机名 " /><Run Text="{Binding Hostname, Mode=OneWay}" />
+                                            <Run Text=" · MAC " /><Run Text="{Binding Mac, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Style="{StaticResource Note}" Margin="0,3,0,0">
+                                            <Run Text="IP " /><Run Text="{Binding Ip, Mode=OneWay}" />
+                                            <Run Text=" · " /><Run Text="{Binding ConnType, Mode=OneWay}" />
+                                            <Run Text=" · 状态 " /><Run Text="{Binding Status, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <TextBlock Style="{StaticResource Note}" Margin="0,3,0,0">
+                                            <Run Text="设备累计 ↓ " /><Run Text="{Binding TotalRx, Mode=OneWay}" />
+                                            <Run Text=" ↑ " /><Run Text="{Binding TotalTx, Mode=OneWay}" />
+                                            <Run Text=" · 本月 ↓ " /><Run Text="{Binding MonthRx, Mode=OneWay}" />
+                                            <Run Text=" · 近 3 日 ↓ " /><Run Text="{Binding Day3Rx, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Button Content="流量详情" Style="{StaticResource PrimaryButton}" Margin="0,0,8,0"
+                                                Command="{Binding DataContext.SelectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" />
+                                        <Button Content="禁止上网" Style="{StaticResource GhostButton}" Margin="0,0,8,0"
+                                                Command="{Binding DataContext.BlockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" />
+                                        <Button Content="解除" Style="{StaticResource GhostButton}"
+                                                Command="{Binding DataContext.UnblockCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- ===== 设备详情 ===== -->
+            <Border Grid.Column="1" Width="430" Margin="14,0,0,0" VerticalAlignment="Top"
+                    Background="{DynamicResource B.Surface}" BorderBrush="{DynamicResource B.Border}"
+                    BorderThickness="1" CornerRadius="{DynamicResource R.CardRadius}" Padding="16"
+                    Visibility="{Binding DetailVisible, Converter={StaticResource BoolToVisibility}}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel>
+                        <Grid>
+                            <TextBlock Text="{Binding DetailTitle}" Style="{StaticResource SectionTitle}" />
+                            <Button Content="关闭" Style="{StaticResource GhostButton}" Padding="10,4"
+                                    HorizontalAlignment="Right" Command="{Binding CloseDetailCommand}" />
+                        </Grid>
+
+                        <TextBlock Text="自定义名称" Style="{StaticResource FieldLabel}" Margin="0,6,0,6" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0" Text="{Binding AliasInput, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="例如：我的手机 / 游戏电脑 / 平板" />
+                            <Button Grid.Column="1" Content="保存" Style="{StaticResource PrimaryButton}" Margin="8,0,0,0"
+                                    Command="{Binding SaveAliasCommand}" />
+                            <Button Grid.Column="2" Content="清除" Style="{StaticResource GhostButton}" Margin="8,0,0,0"
+                                    Command="{Binding ClearAliasCommand}" />
+                        </Grid>
+                        <TextBlock Text="{Binding DetailIdentityNote}" Style="{StaticResource Note}" Margin="0,8,0,0" />
+
+                        <Separator Margin="0,14,0,12" Background="{DynamicResource B.BorderSoft}" />
+
+                        <TextBlock Style="{StaticResource Note}"><Run Text="原始主机名  " /><Run Text="{Binding DetailHostname, Mode=OneWay}" /></TextBlock>
+                        <TextBlock Style="{StaticResource Note}" Margin="0,3,0,0"><Run Text="MAC  " /><Run Text="{Binding DetailMac, Mode=OneWay}" /></TextBlock>
+                        <TextBlock Style="{StaticResource Note}" Margin="0,3,0,0"><Run Text="当前 IP  " /><Run Text="{Binding DetailIp, Mode=OneWay}" /></TextBlock>
+                        <TextBlock Style="{StaticResource Note}" Margin="0,3,0,0"><Run Text="连接方式  " /><Run Text="{Binding DetailConnType, Mode=OneWay}" /></TextBlock>
+                        <TextBlock Style="{StaticResource Note}" Margin="0,3,0,0"><Run Text="在线状态  " /><Run Text="{Binding DetailOnline, Mode=OneWay}" /></TextBlock>
+
+                        <Separator Margin="0,14,0,12" Background="{DynamicResource B.BorderSoft}" />
+
+                        <TextBlock Text="流量统计" Style="{StaticResource ListHeader}" />
+                        <TextBlock Style="{StaticResource FieldValue}" Margin="0,4,0,0">
+                            <Run Text="当日（本地采样）：" /><Run Text="{Binding DetailToday, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource FieldValue}" Margin="0,4,0,0">
+                            <Run Text="近七天（本地采样）：" /><Run Text="{Binding DetailWeek, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource FieldValue}" Margin="0,4,0,0">
+                            <Run Text="本月（本地采样）：" /><Run Text="{Binding DetailMonthLocal, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource FieldValue}" Margin="0,4,0,0">
+                            <Run Text="本月（设备口径）：" /><Run Text="{Binding DetailMonthDevice, Mode=OneWay}" />
+                        </TextBlock>
+
+                        <controls:BarChart Items="{Binding DeviceBars}" Height="150" Margin="0,12,0,0"
+                                           EmptyText="该终端近七天没有本地采样记录" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

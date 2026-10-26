@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>SelfTest</AssemblyName>
+    <RootNamespace>M03XManager.SelfTest</RootNamespace>
+    <!-- 通知容器由主程序 UI 赋值该字段；测试工程只链接 Core，因此单独屏蔽“未赋值”警告。 -->
+    <NoWarn>$(NoWarn);CS0649</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 直接复用主程序的通信层，保证测试与软件跑的是同一份代码 -->
+    <Compile Include="..\..\src\M03XManager\Core\**\*.cs" LinkBase="Core" />
+    <Compile Include="..\..\src\M03XManager\Infrastructure\ObservableObject.cs" LinkBase="Infrastructure" />
+    <Compile Include="..\..\src\M03XManager\Infrastructure\RelayCommand.cs" LinkBase="Infrastructure" />
+  </ItemGroup>
+
+</Project>

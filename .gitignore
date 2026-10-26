@@ -1,0 +1,29 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Generated executable packages are distributed through GitHub Releases.
+/release/
+/releases/
+*.zip
+
+# Runtime diagnostics
+ui-smoke-report.txt
+ui-smoke-live-report.txt
+last-error.txt
+activity*.log
+*.lnk
+
+# IDE and user-specific files
+.vs/
+.vscode/
+*.user
+*.suo
+*.cache
+
+# Local settings or captured device data must never be committed.
+settings.json
+traffic-history.json
+c2000-signal-history.json
+battery-history.json
+device-names.json
